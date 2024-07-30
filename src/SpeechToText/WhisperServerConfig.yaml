@@ -1,0 +1,11 @@
+# speech to text
+whisper:
+  model: "distil-small.en"
+  device: "cpu"
+  computeType: "int8"
+  noSpeechThreshold: 60
+
+# Fast API server
+server:
+  host: "127.0.0.1"
+  port: 3001
