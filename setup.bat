@@ -1,40 +1,42 @@
 @echo off
-:: Check if requi::ents.txt exists
-if not exist requi::ents.txt (
-    echo requi::ents.txt not found!
-    exit /b 1
+setlocal
+
+:: Check if .venv directory exists
+if not exist .venv (
+    echo Creating virtual environment...
+    python -m venv .venv
+    if ERRORLEVEL 1 (
+        echo Failed to create virtual environment!
+        exit /b 1
+    )
+    :: Activate the virtual environment
+    call .venv\Scripts\activate
+
+    :: Check if requirements.txt exists
+    if not exist requirements.txt (
+        echo requirements.txt not found!
+        exit /b 1
+    ) else (
+        echo Installing packages from requirements.txt...
+        pip install -r requirements.txt
+        if ERRORLEVEL 1 (
+            echo Failed to install packages!
+            exit /b 1
+        )
+    ) 
+
+) else (
+    echo Virtual environment already exists. Skipping creation.
+    :: Activate the virtual environment
+    call .venv\Scripts\activate
 )
 
-:: Create a virtual environment named .venv
-python -m venv .venv
+echo Virtual environment is ready. Running Whisper server.
 
-:: Check if venv creation was successful
-if ERRORLEVEL 1 (
-    echo Failed to create virtual environment!
-    exit /b 1
-)
-
-:: Activate the virtual environment
-call .venv\Scripts\activate
-
-:: Check if activation was successful
-if "%VIRTUAL_ENV%" == "" (
-    echo Failed to activate virtual environment!
-    exit /b 1
-)
-
-:: Install packages from requirements.txt
-pip install -r requirements.txt
-
-:: Check if installation was successful
-if ERRORLEVEL 1 (
-    echo Failed to install packages!
-    exit /b 1
-)
-
-echo Virtual environment setup complete and packages installed successfully. Running Whisper server.
+:: Navigate to the directory containing WhisperServerMain.py
+cd .\src\SpeechToText
 
 :: Run Whisper server
-python .\src\SpeechToText\WhisperServerMain.py --c=WhisperServerConfig.yaml
+python .\WhisperServerMain.py --c=WhisperServerConfig.yaml
 
-exit /b 0
+endlocal
